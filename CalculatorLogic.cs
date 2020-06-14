@@ -8,20 +8,6 @@ namespace Calculator
 {
     public class CalculatorLogic
     {
-        private static CalculatorLogic instance;
-        public static CalculatorLogic Instance 
-        {
-            get    
-            {   
-                if (instance == null)
-                    {
-                        instance = new CalculatorLogic();
-                    }
-                    return instance;
-            }
-        }
-
-        public string inputText = "";
         private LinkedList<Token> equation;
         private enum state
         {
@@ -31,11 +17,16 @@ namespace Calculator
             err,
             end
         }
-        public int outputValue;
-        private string outputText;
+
+        private string inputText = "";
+        private long outputValue;
+        private string outputText = "";
+
+        public delegate void OutputHandler(string output);
+        public event OutputHandler updateOutput;
 
         //This validates the new text before parsing into tokens, then validating the tokens are a valid equation before finally calculating it and outputting it
-        public void updateInputText(string newInput)
+        public void updateInputTextAndCalculate(string newInput)
         {
             inputText = newInput;
             if (inputTextIsValid())
@@ -48,13 +39,13 @@ namespace Calculator
                 else
                 {
                     outputText = "ERROR";
-                    MainWindow.instance.updateOutput(outputText);
+                    updateOutput(outputText);
                 }
             }
             else
             {
                 outputText = "ERROR";
-                MainWindow.instance.updateOutput(outputText);
+                updateOutput(outputText);
             }
         }
 
@@ -196,7 +187,7 @@ namespace Calculator
         private void calculateOuput()
         {
            LinkedListNode<Token> CurrentToken = equation.First;
-            int newValue;
+            long newValue;
 
             while (CurrentToken.Next != null)
             {
@@ -236,7 +227,9 @@ namespace Calculator
 
             outputValue = CurrentToken.Value.tokenVal;
             outputText = outputValue.ToString();
-            MainWindow.instance.updateOutput(outputText);
+            
+            updateOutput(outputText);
         }
+
     }
 }

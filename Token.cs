@@ -18,7 +18,7 @@ namespace Calculator
             mul,
         }
         public type? tokenType;
-        public int tokenVal;
+        public long tokenVal;
 
         public string TokenString
         {
@@ -48,7 +48,7 @@ namespace Calculator
         }
         private string tokenString = "";
 
-        public Token(int inputInt)
+        public Token(long inputInt)
         {
             tokenVal = inputInt;
             TokenString = tokenVal.ToString();         
@@ -59,8 +59,15 @@ namespace Calculator
                           
         private void updateTokenVal()
         {
-            if(tokenType == type.num)
-                tokenVal = int.Parse(TokenString);
+            try
+            {
+                if (tokenType == type.num)
+                    tokenVal = long.Parse(TokenString);
+            }
+            catch(OverflowException e)
+            {
+                tokenVal = 0;
+            }
         }
 
         public void addToTokenString(string input)
