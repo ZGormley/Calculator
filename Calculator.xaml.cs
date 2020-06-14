@@ -60,13 +60,5 @@ namespace Calculator
         {
             outputText = output;
         }
-
-        private void CheckEnterPressed(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Return)
-            {
-                CalcLogic.updateInputTextAndCalculate(inputText);
-            }
-        }
     }
 }
