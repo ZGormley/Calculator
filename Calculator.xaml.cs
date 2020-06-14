@@ -34,8 +34,8 @@ namespace Calculator
             set { SetValue(outputTextProperty, value); }
         }
         public DependencyProperty outputTextProperty = DependencyProperty.Register("outputText", typeof(string), typeof(Calculator));
-         
-        public string inputText 
+
+        public string inputText
         {
             get { return (string)GetValue(inputTextProperty); }
             set { SetValue(inputTextProperty, value); }
@@ -56,9 +56,17 @@ namespace Calculator
             CalcLogic.updateOutput += OutputUpdated;
         }
 
-        private  void OutputUpdated(string output)
+        private void OutputUpdated(string output)
         {
             outputText = output;
+        }
+
+        private void CheckEnterPressed(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+            {
+                CalcLogic.updateInputTextAndCalculate(inputText);
+            }
         }
     }
 }

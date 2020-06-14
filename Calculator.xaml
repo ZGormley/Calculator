@@ -8,7 +8,7 @@
         Title="Zach G's maybe ok calculator" Height="100">
     <Grid>
         <StackPanel>
-            <TextBox Text="{Binding inputText}" />
+            <TextBox Text="{Binding inputText}" KeyDown="CheckEnterPressed"/>
             <TextBox Text="{Binding outputText}"/>
         </StackPanel>
     </Grid>
