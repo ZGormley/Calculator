@@ -14,8 +14,10 @@ namespace Calculator
         public enum type
         {
             num,
-            add,
             mul,
+            div,
+            add,
+            sub
         }
         public type? tokenType;
         public long tokenVal;
@@ -39,6 +41,14 @@ namespace Calculator
                             tokenType = type.add;
                             break;
 
+                        case "-":
+                            tokenType = type.sub;
+                            break;
+
+                        case "/":
+                            tokenType = type.div;
+                            break;
+
                         default:
                             tokenType = type.num;
                             break;
@@ -57,24 +67,27 @@ namespace Calculator
         {
         }
                           
-        private void updateTokenVal()
+        private bool updateTokenVal()
         {
             try
             {
                 if (tokenType == type.num)
                     tokenVal = long.Parse(TokenString);
+                return true;
             }
-            catch(OverflowException e)
+            catch
             {
-                tokenVal = 0;
+                return false;
             }
         }
 
-        public void addToTokenString(string input)
+        public bool addToTokenString(string input)
         {
-                TokenString += input;
+            TokenString += input;
 
-            updateTokenVal();
+            if (updateTokenVal())
+                return true;
+            return false;
         }
     }
 }

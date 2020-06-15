@@ -1,0 +1,51 @@
+﻿<Window x:Class="Calculator.CalculatorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Calculator"
+        mc:Ignorable="d"
+        Title="Zach G's maybe ok calculator" Height="550" Width="450">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Margin="0,0,-0.4,0.4" VerticalAlignment="Top">
+            <TextBox Text="{Binding inputText, UpdateSourceTrigger=PropertyChanged}" Height="50" FontSize="32"/>
+            <TextBox Text="{Binding outputText}" IsEnabled="False" Height="50" FontSize="32"/>
+        </StackPanel>
+        <Grid Grid.Row="1" Height='Auto'>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <local:CalculatorButton Grid.Row="0" Grid.Column="0" buttonValue="1"/>
+            <local:CalculatorButton Grid.Row="0" Grid.Column="1" buttonValue="2"/>
+            <local:CalculatorButton Grid.Row="0" Grid.Column="2" buttonValue="3"/>
+            <local:CalculatorButton Grid.Row="0" Grid.Column="3" buttonValue="+"/>
+            <local:CalculatorButton Grid.Row="1" Grid.Column="0" buttonValue="4"/>
+            <local:CalculatorButton Grid.Row="1" Grid.Column="1" buttonValue="5"/>
+            <local:CalculatorButton Grid.Row="1" Grid.Column="2" buttonValue="6"/>
+            <local:CalculatorButton Grid.Row="1" Grid.Column="3" buttonValue="-"/>
+            <local:CalculatorButton Grid.Row="2" Grid.Column="0" buttonValue="7"/>
+            <local:CalculatorButton Grid.Row="2" Grid.Column="1" buttonValue="8"/>
+            <local:CalculatorButton Grid.Row="2" Grid.Column="2" buttonValue="9"/>
+            <local:CalculatorButton Grid.Row="2" Grid.Column="3" buttonValue="/"/>
+            <local:CalculatorButton Grid.Row="3" Grid.Column="0" buttonValue="0"/>
+            <Button Content="C" Grid.Row="3" Grid.Column="1" Click="EraseClick"/>
+            <Button Content="Del" Grid.Row="3" Grid.Column="2" Click="BackspaceClick"/>
+            <local:CalculatorButton Grid.Row="3" Grid.Column="3" buttonValue="*"/>
+
+        </Grid>
+    </Grid>
+</Window>

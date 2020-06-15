@@ -9,32 +9,32 @@ namespace Calculator
     public class CalculatorLogic
     {
         private LinkedList<Token> equation;
-        private enum state
-        {
-            start,
-            num,
-            op,
-            err,
-            end
-        }
 
-        private string inputText = "";
-        private long outputValue;
+        public string inputText = "";
+
         private string outputText = "";
+        private long outputValue;
 
         public delegate void OutputHandler(string output);
         public event OutputHandler updateOutput;
 
         //This validates the new text before parsing into tokens, then validating the tokens are a valid equation before finally calculating it and outputting it
-        public void updateInputTextAndCalculate(string newInput)
+        public void Calculate()
         {
-            inputText = newInput;
-            if (inputTextIsValid())
+            if (inputText.Length > 0)
             {
-                parseInput();
-                if(tokenListIsValid())
+                if (inputTextIsValid())
                 {
-                    calculateOuput();
+                    createTokenList();
+                    if (tokenListIsValid())
+                    {
+                        calculateOutput();
+                    }
+                    else
+                    {
+                        outputText = "ERROR";
+                        updateOutput(outputText);
+                    }
                 }
                 else
                 {
@@ -44,13 +44,13 @@ namespace Calculator
             }
             else
             {
-                outputText = "ERROR";
+                outputText = "";
                 updateOutput(outputText);
             }
         }
 
         //This creates a single number token for a contiguous string of numbers or a token for each individual + or * character this can easily be extended to add division and subtraction
-        private void parseInput()
+        private void createTokenList()
         {
             equation = new LinkedList<Token>();
             Token currentToken = new Token();
@@ -58,49 +58,43 @@ namespace Calculator
 
             for (int i = 0; i < inputText.Length; i++)
             {
-                if (inputText[i] == '+')
+                switch(inputText[i])
                 {
-                    input += inputText[i];
-                    currentToken.addToTokenString(input);
-                    equation.AddLast(currentToken);
+                    case '+':
+                    case '*':
+                    case '/':
+                    case '-':
 
-                    input = "";
-                    currentToken = new Token();
-                    
-                }
+                        input += inputText[i];
+                        currentToken.addToTokenString(input);
+                        equation.AddLast(currentToken);
 
-                else if (inputText[i] == '*')
-                {
-                    input += inputText[i];
-                    currentToken.addToTokenString(input);
-                    equation.AddLast(currentToken);
+                        input = "";
+                        currentToken = new Token();
+                        break;
 
-                    input = "";
-                    currentToken = new Token();
-                }
-
-                else if (char.IsNumber(inputText[i]))
-                {
-                    while (char.IsNumber(inputText[i]))
-                    {
-                        input += inputText[i++];
-
-                        if(i >= inputText.Length)
+                    default:
+                        while (char.IsNumber(inputText[i]))
                         {
-                            break;
+                            input += inputText[i++];
+
+                            if (i >= inputText.Length)
+                            {
+                                break;
+                            }
                         }
-                    }
 
-                    currentToken.addToTokenString(input);
-                    equation.AddLast(currentToken);
+                        currentToken.addToTokenString(input);
+                        equation.AddLast(currentToken);
 
-                    input = "";
-                    currentToken = new Token();
-                    i--;
+                        input = "";
+                        currentToken = new Token();
+                        i--;
+                        break;
                 }
             }
-        }
 
+        }
         private bool inputTextIsValid()
         {
             foreach (char inputChar in inputText)
@@ -109,20 +103,32 @@ namespace Calculator
                 {
                     continue;
                 }
-                else if (inputChar == '*' || inputChar == '+')
-                {
-                    continue;
-                }
                 else
                 {
-                    return false;
+                    switch (inputChar)
+                    {
+                        case '+':
+                        case '*':
+                        case '/':
+                        case '-':
+                            continue;
+                        default:
+                            return false;
+                    }
                 }
             }
-
             return true;
         }
 
-        //A simple state machine to validate the tokenlist as an equation
+        private enum state
+        {
+            start,
+            num,
+            op,
+            err,
+            end
+        }
+        //State machine for validation token list
         private bool tokenListIsValid()
         {
             state validationState = state.start;
@@ -183,53 +189,56 @@ namespace Calculator
             }
             return true;
         }
-
-        private void calculateOuput()
+    
+        private void calculateOutput()
         {
-           LinkedListNode<Token> CurrentToken = equation.First;
-            long newValue;
+           LinkedListNode<Token> currentToken = equation.First;
+           long newValue;
 
-            while (CurrentToken.Next != null)
+            while(currentToken != null)
             {
-                while (CurrentToken.Value.tokenType != Token.type.mul)
+                if (currentToken.Value.tokenType == Token.type.mul)
                 {
-                    if (CurrentToken.Next == null)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        CurrentToken = CurrentToken.Next;
-                    }
+                    newValue = currentToken.Previous.Value.tokenVal * currentToken.Next.Value.tokenVal;
+                    updateTokenList(currentToken, newValue);
+                }
+                else if(currentToken.Value.tokenType == Token.type.div)
+                {
+                    newValue = currentToken.Previous.Value.tokenVal / currentToken.Next.Value.tokenVal;
+                    updateTokenList(currentToken, newValue);
                 }
 
-                if (CurrentToken.Value.tokenType == Token.type.mul)
-                {
-                    newValue = CurrentToken.Previous.Value.tokenVal * CurrentToken.Next.Value.tokenVal;
-                    CurrentToken.Value = new Token(newValue);
-                    equation.Remove(CurrentToken.Previous);
-                    equation.Remove(CurrentToken.Next);
-                }
+                currentToken = currentToken.Next;
             }
 
-            CurrentToken = equation.First;
-            while (CurrentToken.Next != null)
+            currentToken = equation.First;
+            while (currentToken != null)
             {
-                while (CurrentToken.Value.tokenType != Token.type.add)
+                if (currentToken.Value.tokenType == Token.type.add)
                 {
-                    CurrentToken = CurrentToken.Next;
+                    newValue = currentToken.Previous.Value.tokenVal + currentToken.Next.Value.tokenVal;
+                    updateTokenList(currentToken, newValue);
                 }
-                newValue = CurrentToken.Previous.Value.tokenVal + CurrentToken.Next.Value.tokenVal;
-                CurrentToken.Value = new Token(newValue);
-                equation.Remove(CurrentToken.Previous);
-                equation.Remove(CurrentToken.Next);
+                else if (currentToken.Value.tokenType == Token.type.sub)
+                {
+                    newValue = currentToken.Previous.Value.tokenVal - currentToken.Next.Value.tokenVal;
+                    updateTokenList(currentToken, newValue);
+                }
+
+                currentToken = currentToken.Next;
             }
 
-            outputValue = CurrentToken.Value.tokenVal;
-            outputText = outputValue.ToString();
-            
+            currentToken = equation.First;
+            outputValue = currentToken.Value.tokenVal;
+            outputText = outputValue.ToString();  
             updateOutput(outputText);
         }
 
+        private void updateTokenList(LinkedListNode<Token> currentToken, long newValue)
+        {
+            currentToken.Value = new Token(newValue);
+            equation.Remove(currentToken.Previous);
+            equation.Remove(currentToken.Next);
+        }
     }
 }
